@@ -1,18 +1,23 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
+    content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+    theme: {
+        extend: {
+            colors: {
+                background: "var(--background)",
+                foreground: "var(--foreground)",
+                primary: "#0070f3",
+                secondary: "#1a1a1a",
+            },
+            fontFamily: {
+                sans: ['"Inter"', "sans-serif"],
+                mono: ['"Fira Code"', "monospace"],
+            },
+            spacing: {
+                18: "4.5rem",
+            },
+        },
     },
-  },
-  plugins: [],
+    plugins: [],
 } satisfies Config;
