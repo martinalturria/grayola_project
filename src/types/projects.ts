@@ -49,6 +49,15 @@ export type UpdateProjectResponse = {
 };
 
 export type DeleteProjectResponse = {
-    id: string; 
-    message: string; 
+    id: string;
+    message: string;
 } | null;
+
+export interface AssignProjectRequest {
+    assigned_to: string;
+}
+
+export type AssignProjectResponse = {
+    id: string;
+    assigned_to: string;
+};
