@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { ApiResponse } from "@/types/api-response";
+import type { ApiResponse } from "@/types/api-response";
 
 export const successResponse = <T>(
     data: T,
     message = "Operation completed successfully."
-) => {
+): NextResponse<ApiResponse<T>> => {
     return NextResponse.json<ApiResponse<T>>({
         success: true,
         message,
@@ -12,12 +12,15 @@ export const successResponse = <T>(
     });
 };
 
-export const errorResponse = (message = "An error occurred.", status = 500) => {
-    return NextResponse.json<ApiResponse<null>>(
+export const errorResponse = <T = null>(
+    message = "An error occurred.",
+    status = 500
+): NextResponse<ApiResponse<T>> => {
+    return NextResponse.json<ApiResponse<T>>(
         {
             success: false,
             message,
-            data: null,
+            data: null as T,
         },
         { status }
     );

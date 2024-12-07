@@ -1,6 +1,6 @@
-import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
 import { supabase } from "@/lib/supabase/supabase";
 import { supabaseAdmin } from "@/lib/supabase/supabase-admin";
+import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
 import type {
     RegisterRequest,
     RegisterResponse,
@@ -11,12 +11,10 @@ import type { NextResponse } from "next/server";
 /**
  * POST /api/auth/register
  *
- * Endpoint para registrar un nuevo usuario con el rol por defecto `cliente`.
- * Realiza validaciones de datos (email y password), verifica si el correo ya está registrado
- * y crea un usuario en Supabase si todo es válido.
+ * Endpoint to register a new user with the default role `cliente`.
  *
- * @param {Request} req - La solicitud HTTP que contiene el cuerpo con `email` y `password`.
- * @returns {Promise<NextResponse<RegisterResponse>>} - Respuesta estandarizada con el resultado del registro.
+ * @param {Request} req - HTTP request containing `email` and `password` in the body.
+ * @returns {Promise<NextResponse<RegisterResponse>>} - Response with the result of the registration.
  */
 export async function POST(
     req: Request
@@ -25,7 +23,7 @@ export async function POST(
         const { email, password }: RegisterRequest = await req.json();
 
         if (!email || !password) {
-            return errorResponse(
+            return errorResponse<RegisterResponse["data"]>(
                 "Missing required fields: email or password",
                 400
             );
@@ -33,11 +31,14 @@ export async function POST(
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return errorResponse("Invalid email format", 400);
+            return errorResponse<RegisterResponse["data"]>(
+                "Invalid email format",
+                400
+            );
         }
 
         if (password.length < 8) {
-            return errorResponse(
+            return errorResponse<RegisterResponse["data"]>(
                 "Password must be at least 8 characters long",
                 400
             );
@@ -47,7 +48,10 @@ export async function POST(
             await supabaseAdmin.auth.admin.listUsers();
 
         if (fetchError) {
-            return errorResponse(fetchError.message, 500);
+            return errorResponse<RegisterResponse["data"]>(
+                fetchError.message,
+                500
+            );
         }
 
         const isEmailRegistered = (existingUsers.users as SupabaseUser[]).some(
@@ -55,7 +59,10 @@ export async function POST(
         );
 
         if (isEmailRegistered) {
-            return errorResponse("Email is already registered", 400);
+            return errorResponse<RegisterResponse["data"]>(
+                "Email is already registered",
+                400
+            );
         }
 
         const { data, error } = await supabase.auth.signUp({
@@ -69,19 +76,19 @@ export async function POST(
         });
 
         if (error) {
-            return errorResponse(error.message, 500);
+            return errorResponse<RegisterResponse["data"]>(error.message, 500);
         }
 
-        return successResponse(
+        return successResponse<RegisterResponse["data"]>(
             {
-                id: data.user?.id,
-                email: data.user?.email,
-                role: data.user?.user_metadata?.role_project,
+                id: data.user?.id || "",
+                email: data.user?.email || "",
+                role: data.user?.user_metadata?.role_project || null,
             },
             "User registered successfully"
         );
     } catch (err: any) {
-        return errorResponse(
+        return errorResponse<RegisterResponse["data"]>(
             err.message || "An unexpected error occurred",
             500
         );
