@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase/supabase";
 import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
 import type { LoginRequest, LoginResponse } from "@/types/auth";
 import type { NextResponse } from "next/server";
+import { validateEmailAndPassword } from "@/utils/data_validation";
 
 /**
  * POST /api/auth/login
@@ -15,20 +16,10 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
     try {
         const { email, password }: LoginRequest = await req.json();
 
-        if (!email || !password) {
-            return errorResponse<LoginResponse["data"]>(
-                "Missing required fields: email or password",
-                400
-            );
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return errorResponse<LoginResponse["data"]>(
-                "Invalid email format",
-                400
-            );
-        }
+        const validationError = await validateEmailAndPassword<
+            LoginResponse["data"]
+        >(email, password);
+        if (validationError) return validationError;
 
         const { data, error } = await supabase.auth.signInWithPassword({
             email,

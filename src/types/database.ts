@@ -1,41 +1,22 @@
-export type Json =
-    | string
-    | number
-    | boolean
-    | null
-    | { [key: string]: Json }
-    | Json[];
+export interface SupabaseAuthResponse {
+    data: {
+        user: SupabaseDatabaseUser | null;
+    } | null;
+    error: {
+        message: string;
+        status: number;
+    } | null;
+}
 
-export interface Database {
-    public: {
-        Tables: {
-            projects: {
-                Row: {
-                    id: string;
-                    title: string;
-                    description: string | null;
-                    created_by: string;
-                    assigned_to: string | null;
-                    status: string;
-                    created_at: string;
-                };
-                Insert: {
-                    title: string;
-                    description?: string | null;
-                    created_by: string;
-                    assigned_to?: string | null;
-                    status?: string;
-                    created_at?: string;
-                };
-                Update: {
-                    title?: string;
-                    description?: string | null;
-                    created_by?: string;
-                    assigned_to?: string | null;
-                    status?: string;
-                    created_at?: string;
-                };
-            };
-        };
+export interface SupabaseDatabaseUser {
+    id: string;
+    email: string; 
+    user_metadata?: {
+        [key: string]: any;
     };
+}
+
+export interface SupabaseUserMetadata {
+    role_project?: string;
+    [key: string]: any;
 }

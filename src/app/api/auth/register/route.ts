@@ -7,6 +7,7 @@ import type {
     SupabaseUser,
 } from "@/types/auth";
 import type { NextResponse } from "next/server";
+import { validateEmailAndPassword } from "@/utils/data_validation";
 
 /**
  * POST /api/auth/register
@@ -22,27 +23,10 @@ export async function POST(
     try {
         const { email, password }: RegisterRequest = await req.json();
 
-        if (!email || !password) {
-            return errorResponse<RegisterResponse["data"]>(
-                "Missing required fields: email or password",
-                400
-            );
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return errorResponse<RegisterResponse["data"]>(
-                "Invalid email format",
-                400
-            );
-        }
-
-        if (password.length < 8) {
-            return errorResponse<RegisterResponse["data"]>(
-                "Password must be at least 8 characters long",
-                400
-            );
-        }
+        const validationError = await validateEmailAndPassword<
+            RegisterResponse["data"]
+        >(email, password);
+        if (validationError) return validationError;
 
         const { data: existingUsers, error: fetchError } =
             await supabaseAdmin.auth.admin.listUsers();
