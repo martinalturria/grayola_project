@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/api/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import type { LoginRequest, LoginResponse } from "@/types/api/auth";
 import type { NextResponse } from "next/server";
 import { validateEmailAndPassword } from "@/utils/api/data_validation";
@@ -28,7 +31,7 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
 
         if (error || !data.session || !data.user) {
             return errorResponse<LoginResponse["data"]>(
-                "Invalid email or password",
+                "Correo electrónico o contraseña no válidos",
                 401
             );
         }
@@ -41,7 +44,7 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
 
         if (profileError || !profile) {
             return errorResponse<LoginResponse["data"]>(
-                "Failed to fetch user profile",
+                "No se pudo obtener el perfil del usuario",
                 500
             );
         }
@@ -53,11 +56,11 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
                 role: profile.role_project,
                 token: data.session.access_token,
             },
-            "Login successful"
+            "Login exitoso"
         );
     } catch (err: any) {
         return errorResponse<LoginResponse["data"]>(
-            err.message || "An unexpected error occurred",
+            err.message || "Ocurrió un error inesperado",
             500
         );
     }
