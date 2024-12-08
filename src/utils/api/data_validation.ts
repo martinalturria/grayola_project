@@ -1,5 +1,5 @@
-import { errorResponse } from "@/lib/middlewares/api-response";
-import type { ApiResponse } from "@/types/api-response";
+import { errorResponse } from "@/lib/api/middlewares/api-response";
+import type { ApiResponse } from "@/types/api/api-response";
 import type { NextResponse } from "next/server";
 
 /**

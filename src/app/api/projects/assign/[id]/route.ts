@@ -1,12 +1,12 @@
-import { supabase } from "@/lib/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
-import { validateAuth } from "@/lib/middlewares/validate-auth";
+import { supabase } from "@/lib/api/supabase/supabase";
+import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import { validateAuth } from "@/lib/api/middlewares/validate-auth";
 import { NextRequest, NextResponse } from "next/server";
-import type { ApiResponse } from "@/types/api-response";
+import type { ApiResponse } from "@/types/api/api-response";
 import type {
     AssignProjectRequest,
     AssignProjectResponse,
-} from "@/types/projects";
+} from "@/types/api/projects";
 
 /**
  * PATCH /api/projects/assign/[id]

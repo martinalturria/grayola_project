@@ -1,7 +1,7 @@
-import { supabaseAdmin } from "@/lib/supabase/supabase-admin";
-import { errorResponse } from "@/lib/middlewares/api-response";
+import { supabaseAdmin } from "@/lib/api/supabase/supabase-admin";
+import { errorResponse } from "@/lib/api/middlewares/api-response";
 import { NextRequest, NextResponse } from "next/server";
-import type { ApiResponse } from "@/types/api-response";
+import type { ApiResponse } from "@/types/api/api-response";
 
 /**
  * Middleware to validate authentication token and user role.
