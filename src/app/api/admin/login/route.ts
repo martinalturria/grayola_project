@@ -1,23 +1,26 @@
 import { supabase } from "@/lib/supabase/supabase";
 import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
-import type { LoginRequest, LoginResponse } from "@/types/auth";
 import type { NextResponse } from "next/server";
 import { validateEmailAndPassword } from "@/utils/data_validation";
+import { AdminLoginRequest, AdminLoginResponse } from "@/types/admin";
 
 /**
- * POST /api/auth/login
+ * POST /api/admin/login
  *
- * Endpoint to authenticate a user using email and password and retrieve their profile.
+ * Endpoint to authenticate an admin user using email and password.
+ * Only accessible to users with the `superuser` role.
  *
  * @param {Request} req - HTTP request containing `email` and `password` in the body.
- * @returns {Promise<NextResponse<LoginResponse>>} - Response with the result of the login process.
+ * @returns {Promise<NextResponse<AdminLoginResponse>>} - Response with the result of the login process.
  */
-export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
+export async function POST(
+    req: Request
+): Promise<NextResponse<AdminLoginResponse>> {
     try {
-        const { email, password }: LoginRequest = await req.json();
+        const { email, password }: AdminLoginRequest = await req.json();
 
         const validationError = await validateEmailAndPassword<
-            LoginResponse["data"]
+            AdminLoginResponse["data"]
         >(email, password);
         if (validationError) return validationError;
 
@@ -27,7 +30,7 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
         });
 
         if (error || !data.session || !data.user) {
-            return errorResponse<LoginResponse["data"]>(
+            return errorResponse<AdminLoginResponse["data"]>(
                 "Invalid email or password",
                 401
             );
@@ -39,24 +42,24 @@ export async function POST(req: Request): Promise<NextResponse<LoginResponse>> {
             .eq("id", data.user.id)
             .single();
 
-        if (profileError || !profile) {
-            return errorResponse<LoginResponse["data"]>(
-                "Failed to fetch user profile",
-                500
+        if (profileError || profile?.role_project !== "superuser") {
+            return errorResponse<AdminLoginResponse["data"]>(
+                "Access denied: you do not have admin privileges",
+                403
             );
         }
 
-        return successResponse<LoginResponse["data"]>(
+        return successResponse<AdminLoginResponse["data"]>(
             {
                 id: data.user.id,
-                email: data.user.email,
+                email: data.user.email || "",
                 role: profile.role_project,
                 token: data.session.access_token,
             },
-            "Login successful"
+            "Admin login successful"
         );
     } catch (err: any) {
-        return errorResponse<LoginResponse["data"]>(
+        return errorResponse<AdminLoginResponse["data"]>(
             err.message || "An unexpected error occurred",
             500
         );

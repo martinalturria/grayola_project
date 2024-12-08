@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/supabase";
+import { supabaseAdmin } from "@/lib/supabase/supabase-admin";
 import { errorResponse } from "@/lib/middlewares/api-response";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api-response";
@@ -29,13 +29,29 @@ export async function validateAuth(
 
         const token = authHeader.split(" ")[1];
 
-        const { data, error } = await supabase.auth.getUser(token);
+        const { data: authData, error: authError } =
+            await supabaseAdmin.auth.getUser(token);
 
-        if (error || !data?.user) {
+        if (authError || !authData?.user) {
             return errorResponse<null>("Invalid or expired token", 401);
         }
 
-        const userRole = data.user.user_metadata?.role_project || null;
+        const userId = authData.user.id;
+
+        const { data: profileData, error: profileError } = await supabaseAdmin
+            .from("profile")
+            .select("role_project")
+            .eq("id", userId)
+            .single();
+
+        if (profileError || !profileData) {
+            return errorResponse<null>(
+                "User profile not found or insufficient permissions",
+                403
+            );
+        }
+
+        const userRole = profileData.role_project;
 
         if (
             allowedRoles.length > 0 &&
@@ -48,8 +64,8 @@ export async function validateAuth(
         }
 
         return {
-            id: data.user.id,
-            email: data.user.email || null,
+            id: userId,
+            email: authData.user.email || null,
             role: userRole,
         };
     } catch (err: any) {

@@ -8,8 +8,11 @@ import type { GetProjectsResponse } from "@/types/projects";
 /**
  * GET /api/projects
  *
- * Endpoint to retrieve projects. Accessible to users with roles `project_manager` or `designer`.
- * Designers can only see their assigned projects.
+ * Endpoint to retrieve projects. Accessible to users with roles `project_manager`, `designer`, or `client`.
+ * - `project_manager` sees all projects.
+ * - `designer` sees only projects assigned to them.
+ * - `client` sees only projects created by them.
+ * Includes designer's full name (if assigned).
  *
  * @param {NextRequest} req - HTTP request.
  * @returns {Promise<NextResponse<ApiResponse<GetProjectsResponse | null>>>} - Response with project data or error.
@@ -21,13 +24,28 @@ export async function GET(
         const authUser = await validateAuth(req, [
             "project_manager",
             "designer",
+            "client",
         ]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const query = supabase.from("projects").select("*");
+        let query = supabase.from("projects").select(`
+            *,
+            assigned_to_profile:profile!projects_assigned_to_fkey(
+                id,
+                first_name,
+                last_name
+            ),
+            created_by_profile:profile!projects_created_by_fkey(
+                id,
+                first_name,
+                last_name
+            )
+        `);
 
         if (authUser.role === "designer") {
-            query.eq("assigned_to", authUser.id);
+            query = query.eq("assigned_to", authUser.id);
+        } else if (authUser.role === "client") {
+            query = query.eq("created_by", authUser.id);
         }
 
         const { data, error } = await query;
@@ -39,8 +57,22 @@ export async function GET(
             );
         }
 
+        const formattedData = data.map((project: any) => ({
+            ...project,
+            assigned_to_name: project.assigned_to_profile
+                ? `${project.assigned_to_profile.first_name || ""} ${
+                      project.assigned_to_profile.last_name || ""
+                  }`.trim()
+                : null,
+            created_by_name: project.created_by_profile
+                ? `${project.created_by_profile.first_name || ""} ${
+                      project.created_by_profile.last_name || ""
+                  }`.trim()
+                : null,
+        }));
+
         return successResponse<GetProjectsResponse | null>(
-            data,
+            formattedData,
             "Projects retrieved successfully"
         );
     } catch (err: any) {

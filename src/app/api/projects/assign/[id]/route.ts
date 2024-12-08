@@ -26,11 +26,32 @@ export async function PATCH(
 
         const projectId = params.id;
 
+        if (!projectId) {
+            return errorResponse<AssignProjectResponse | null>(
+                "Missing required parameter: project ID",
+                400
+            );
+        }
+
         const { assigned_to }: AssignProjectRequest = await req.json();
 
         if (!assigned_to) {
             return errorResponse<AssignProjectResponse | null>(
                 "Missing required field: assigned_to",
+                400
+            );
+        }
+
+        const { data: designer, error: designerError } = await supabase
+            .from("profile")
+            .select("id, first_name, last_name, role_project")
+            .eq("id", assigned_to)
+            .eq("role_project", "designer")
+            .single();
+
+        if (designerError || !designer) {
+            return errorResponse<AssignProjectResponse | null>(
+                "Assigned user is not a valid designer",
                 400
             );
         }
@@ -66,6 +87,7 @@ export async function PATCH(
             {
                 id: data.id,
                 assigned_to: data.assigned_to,
+                assigned_to_name: `${designer.first_name} ${designer.last_name}`,
             },
             "Project assigned successfully"
         );

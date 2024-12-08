@@ -9,8 +9,9 @@ import type { GetProjectByIdResponse } from "@/types/projects";
  * GET /api/projects/[id]
  *
  * Endpoint to retrieve a project by its ID.
- * Restricted to users with roles `project_manager` or `designer`.
+ * Restricted to users with roles `project_manager`, `designer`, and `client`.
  * Designers can only view projects assigned to them.
+ * Clients can only view projects they created.
  *
  * @param {NextRequest} req - HTTP request containing the project ID.
  * @returns {Promise<NextResponse<ApiResponse<GetProjectByIdResponse | null>>>} - Response with project details or error.
@@ -23,6 +24,7 @@ export async function GET(
         const authUser = await validateAuth(req, [
             "project_manager",
             "designer",
+            "client",
         ]);
         if (authUser instanceof NextResponse) return authUser;
 
@@ -39,6 +41,8 @@ export async function GET(
 
         if (authUser.role === "designer") {
             query.eq("assigned_to", authUser.id);
+        } else if (authUser.role === "client") {
+            query.eq("created_by", authUser.id);
         }
 
         const { data, error } = await query.single<GetProjectByIdResponse>();

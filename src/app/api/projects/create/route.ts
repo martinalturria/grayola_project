@@ -11,7 +11,7 @@ import type { ApiResponse } from "@/types/api-response";
 /**
  * POST /api/projects/create
  *
- * Endpoint to create a new project. Restricted to users with the role `project_manager`.
+ * Endpoint to create a new project. Accessible to users with roles `project_manager` or `client`.
  *
  * @param {NextRequest} req - HTTP request containing project details in the body.
  * @returns {Promise<NextResponse<ApiResponse<CreateProjectResponse | null>>>} - Response with the created project details.
@@ -20,7 +20,7 @@ export async function POST(
     req: NextRequest
 ): Promise<NextResponse<ApiResponse<CreateProjectResponse | null>>> {
     try {
-        const authUser = await validateAuth(req, ["project_manager"]);
+        const authUser = await validateAuth(req, ["project_manager", "client"]);
         if (authUser instanceof NextResponse) return authUser;
 
         const {
@@ -37,6 +37,21 @@ export async function POST(
             );
         }
 
+        if (assigned_to) {
+            const { data: profile, error: profileError } = await supabase
+                .from("profile")
+                .select("id")
+                .eq("id", assigned_to)
+                .single();
+
+            if (profileError || !profile) {
+                return errorResponse<CreateProjectResponse | null>(
+                    "Invalid assigned_to ID",
+                    400
+                );
+            }
+        }
+
         const { data, error } = await supabase
             .from("projects")
             .insert({
@@ -44,7 +59,7 @@ export async function POST(
                 description: description || null,
                 assigned_to: assigned_to || null,
                 status: status || "pending",
-                created_by: authUser.id,
+                created_by: authUser.id, 
             })
             .select()
             .single();

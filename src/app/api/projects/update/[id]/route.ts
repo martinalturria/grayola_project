@@ -36,6 +36,7 @@ export async function PUT(
         const updates: UpdateProjectRequest = await req.json();
 
         const { title, description, assigned_to, status } = updates;
+
         if (!title && !description && !assigned_to && !status) {
             return errorResponse<UpdateProjectResponse | null>(
                 "No fields provided for update",
