@@ -1,5 +1,6 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import ProjectDetailModal from "./ProjectDetailModal"; 
 
 interface ProjectCardProps {
     id: string;
@@ -8,7 +9,6 @@ interface ProjectCardProps {
     date: string;
     assignedToName?: string | null;
     createdByName?: string | null;
-    onViewDetails: (id: string) => void;
     onEdit: (id: string) => void;
     onDelete: (id: string) => void;
 }
@@ -33,12 +33,18 @@ const ProjectCard: FC<ProjectCardProps> = ({
     date,
     assignedToName,
     createdByName,
-    onViewDetails,
     onEdit,
     onDelete,
 }) => {
     const { text, colorClass } = translateStatus(status);
     const role = localStorage.getItem("role_user");
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleViewDetails = () => {
+       
+        setIsModalOpen(true);
+    };
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 text-sm h-auto">
@@ -61,26 +67,47 @@ const ProjectCard: FC<ProjectCardProps> = ({
                 )}
             </div>
             <div className="flex items-center justify-between">
-                <p className={`text-sm font-medium ${colorClass}`}>
-                    {text}
-                </p>
+                <p className={`text-sm font-medium ${colorClass}`}>{text}</p>
                 <div className="flex gap-3">
-                    <button onClick={() => onViewDetails(id)} aria-label="Ver detalles">
+                    <button
+                        onClick={handleViewDetails}
+                        aria-label="Ver detalles"
+                    >
                         <FaEye size={16} />
                     </button>
 
                     {role === "project_manager" && (
                         <>
-                            <button onClick={() => onEdit(id)} aria-label="Editar proyecto">
+                            <button
+                                onClick={() => onEdit(id)}
+                                aria-label="Editar proyecto"
+                            >
                                 <FaEdit size={16} />
                             </button>
-                            <button onClick={() => onDelete(id)} aria-label="Eliminar proyecto">
+                            <button
+                                onClick={() => onDelete(id)}
+                                aria-label="Eliminar proyecto"
+                            >
                                 <FaTrash size={16} />
                             </button>
                         </>
                     )}
                 </div>
             </div>
+
+            <ProjectDetailModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                project={{
+                    id,
+                    title: name,
+                    description: "Proyecto nuevo", 
+                    created_by_name: createdByName || "No definido",
+                    assigned_to_name: assignedToName || "No asignado",
+                    status,
+                    created_at: date,
+                }}
+            />
         </div>
     );
 };

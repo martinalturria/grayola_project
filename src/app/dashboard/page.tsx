@@ -27,7 +27,7 @@ const Dashboard: FC = () => {
         try {
             const projectList = await getProjects();
             setProjects(projectList);
-            setFilteredProjects(projectList); 
+            setFilteredProjects(projectList);
         } catch (error: any) {
             setError(error.message || "Error al cargar los proyectos.");
         } finally {
@@ -56,10 +56,6 @@ const Dashboard: FC = () => {
         );
         setFilteredProjects(filtered);
     }, [searchQuery, projects]);
-
-    const handleViewDetails = (id: string) => {
-        alert(`Ver detalles del proyecto ${id}`);
-    };
 
     const handleLogout = () => {
         localStorage.removeItem("auth_token");
@@ -95,9 +91,8 @@ const Dashboard: FC = () => {
             <div className="p-6">
                 <ProjectFilter filter={filter} onFilterChange={setFilter} />
                 <ProjectList
-                    projects={filteredProjects} 
+                    projects={filteredProjects}
                     filter={filter}
-                    onViewDetails={handleViewDetails}
                     fetchProjects={fetchProjects}
                 />
                 {canCreate && (

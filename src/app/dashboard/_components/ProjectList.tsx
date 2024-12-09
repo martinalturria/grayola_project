@@ -1,8 +1,11 @@
 import { FC, useState } from "react";
 import ProjectCard from "./ProjectCard";
-import { deleteProject } from "@/services/projects/projects_services";
+import {
+    deleteProject,
+    getDesigners,
+} from "@/services/projects/projects_services";
 import { updateProject } from "@/services/projects/projects_services";
-import { getProjectById } from "@/services/projects/projects_services"; 
+import { getProjectById } from "@/services/projects/projects_services";
 import EditProjectModal from "./EditProjectModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import { SuccessAlert } from "@/utils/frontend/toastUtils";
@@ -19,14 +22,12 @@ interface Project {
 interface ProjectListProps {
     projects: Project[];
     filter: string;
-    onViewDetails: (id: string) => void;
     fetchProjects: () => void;
 }
 
 const ProjectList: FC<ProjectListProps> = ({
     projects,
     filter,
-    onViewDetails,
     fetchProjects,
 }) => {
     const [showEditModal, setShowEditModal] = useState(false);
@@ -35,14 +36,18 @@ const ProjectList: FC<ProjectListProps> = ({
         null
     );
     const [selectedProjectData, setSelectedProjectData] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [designers, setDesigners] = useState<any[]>([]);
 
     const handleEdit = async (id: string) => {
         setSelectedProjectId(id);
         try {
             const project = await getProjectById(id);
             setSelectedProjectData(project);
+
+            const designersList = await getDesigners();
+            setDesigners(designersList);
+
             setShowEditModal(true);
         } catch (error: any) {
             setError(
@@ -59,15 +64,12 @@ const ProjectList: FC<ProjectListProps> = ({
     const handleConfirmDelete = async () => {
         if (selectedProjectId) {
             try {
-                setLoading(true);
                 await deleteProject(selectedProjectId);
                 setShowDeleteModal(false);
                 SuccessAlert("Proyecto eliminado exitosamente");
                 fetchProjects();
             } catch (error: any) {
                 setError(error.message || "Error al eliminar el proyecto.");
-            } finally {
-                setLoading(false);
             }
         }
     };
@@ -75,15 +77,12 @@ const ProjectList: FC<ProjectListProps> = ({
     const handleUpdate = async (updatedData: any) => {
         if (selectedProjectId) {
             try {
-                setLoading(true);
                 await updateProject(selectedProjectId, updatedData);
                 setShowEditModal(false);
                 SuccessAlert("Proyecto actualizado exitosamente");
                 fetchProjects();
             } catch (error: any) {
                 setError(error.message || "Error al actualizar el proyecto.");
-            } finally {
-                setLoading(false);
             }
         }
     };
@@ -105,7 +104,6 @@ const ProjectList: FC<ProjectListProps> = ({
                             date={project.created_at}
                             assignedToName={project.assigned_to_name}
                             createdByName={project.created_by_name}
-                            onViewDetails={onViewDetails}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
                         />
@@ -119,7 +117,9 @@ const ProjectList: FC<ProjectListProps> = ({
                     projectId={selectedProjectId!}
                     initialTitle={selectedProjectData.title}
                     initialDescription={selectedProjectData.description}
-                    initialStatus={selectedProjectData.status} 
+                    initialStatus={selectedProjectData.status}
+                    initialAssignedTo={selectedProjectData.assigned_to}
+                    designers={designers}
                     onProjectUpdated={handleUpdate}
                 />
             )}

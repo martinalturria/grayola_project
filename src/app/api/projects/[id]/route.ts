@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/api/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
@@ -37,7 +40,24 @@ export async function GET(
             );
         }
 
-        const query = supabase.from("projects").select("*").eq("id", projectId);
+        const query = supabase
+            .from("projects")
+            .select(
+                `
+            *,
+            assigned_to_profile:profile!projects_assigned_to_fkey(
+                id,
+                first_name,
+                last_name
+            ),
+            created_by_profile:profile!projects_created_by_fkey(
+                id,
+                first_name,
+                last_name
+            )
+        `
+            )
+            .eq("id", projectId);
 
         if (authUser.role === "designer") {
             query.eq("assigned_to", authUser.id);
@@ -54,16 +74,28 @@ export async function GET(
             );
         }
 
+        const formattedData = {
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            created_by: data.created_by,
+            assigned_to: data.assigned_to,
+            status: data.status,
+            created_at: data.created_at,
+            assigned_to_name: data.assigned_to_profile
+                ? `${data.assigned_to_profile.first_name || ""} ${
+                      data.assigned_to_profile.last_name || ""
+                  }`.trim()
+                : null,
+            created_by_name: data.created_by_profile
+                ? `${data.created_by_profile.first_name || ""} ${
+                      data.created_by_profile.last_name || ""
+                  }`.trim()
+                : null,
+        };
+
         return successResponse<GetProjectByIdResponse | null>(
-            {
-                id: data.id,
-                title: data.title,
-                description: data.description,
-                created_by: data.created_by,
-                assigned_to: data.assigned_to,
-                status: data.status,
-                created_at: data.created_at,
-            },
+            formattedData,
             "Project retrieved successfully"
         );
     } catch (err: any) {

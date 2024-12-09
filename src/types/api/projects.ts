@@ -3,7 +3,7 @@ export interface CreateProjectRequest {
     description?: string | null;
     assigned_to?: string | null;
     status?: string;
-    files?: File[]; 
+    files?: File[];
 }
 
 export type CreateProjectResponse = {
@@ -15,7 +15,7 @@ export type CreateProjectResponse = {
     assigned_to_name?: string | null;
     status: string;
     created_at: string;
-    file_urls?: string[]; 
+    file_urls?: string[];
 } | null;
 
 export type Project = {
@@ -27,6 +27,11 @@ export type Project = {
     status: string;
     created_at: string;
     assigned_to_profile?: {
+        id: string;
+        first_name: string | null;
+        last_name: string | null;
+    } | null;
+    created_by_profile?: {
         id: string;
         first_name: string | null;
         last_name: string | null;

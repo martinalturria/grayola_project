@@ -19,7 +19,7 @@ export const makeApiCall = async (
     method: string,
     body: any,
     requiresAuth: boolean = false,
-    isAdmin: boolean = false 
+    isAdmin: boolean = false
 ) => {
     let headers: HeadersInit = { ...apiConfig.headers };
 

@@ -22,12 +22,16 @@ interface CreateProjectRequest {
 interface UpdateProjectRequest {
     title?: string;
     description?: string;
-    assigned_to?: string;
+    assigned_to?: string | null;
     status?: string;
 }
 
-interface AssignProjectRequest {
-    assigned_to: string;
+interface Designer {
+    id: string;
+    first_name: string;
+    last_name: string;
+    role_project: string;
+    created_at: string;
 }
 
 export const getProjects = async () => {
@@ -128,26 +132,18 @@ export const deleteProject = async (id: string) => {
     }
 };
 
-export const assignProject = async (
-    id: string,
-    assignData: AssignProjectRequest
-) => {
+export const getDesigners = async () => {
     try {
-        const data = await makeApiCall(
-            `/projects/assign/${id}`,
-            "PATCH",
-            assignData,
-            true
-        );
+        const data = await makeApiCall("/users/designers", "GET", {}, true);
 
         if (data?.data) {
-            return data.data;
+            return data.data as Designer[];
         } else {
-            throw new Error("Error al asignar el proyecto.");
+            throw new Error("No se encontraron diseñadores.");
         }
     } catch (error: any) {
         throw new Error(
-            error.message || "Ocurrió un error al asignar el proyecto."
+            error.message || "Ocurrió un error al obtener los diseñadores."
         );
     }
 };

@@ -11,21 +11,10 @@ interface EditProjectModalProps {
     initialTitle: string;
     initialDescription: string;
     initialStatus: string;
+    initialAssignedTo: string | null;
+    designers: any[];
     onProjectUpdated: (updatedData: any) => void;
 }
-
-const translateStatus = (status: string) => {
-    switch (status) {
-        case "pending":
-            return "Pendiente";
-        case "active":
-            return "En curso";
-        case "completed":
-            return "Completado";
-        default:
-            return status;
-    }
-};
 
 const EditProjectModal: FC<EditProjectModalProps> = ({
     isOpen,
@@ -34,26 +23,41 @@ const EditProjectModal: FC<EditProjectModalProps> = ({
     initialTitle,
     initialDescription,
     initialStatus,
+    initialAssignedTo,
+    designers,
     onProjectUpdated,
 }) => {
     const [title, setTitle] = useState(initialTitle);
     const [description, setDescription] = useState(initialDescription);
     const [status, setStatus] = useState(initialStatus);
+    const [assignedTo, setAssignedTo] = useState<string | null>(
+        initialAssignedTo
+    );
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setTitle(initialTitle);
         setDescription(initialDescription);
         setStatus(initialStatus);
-    }, [initialTitle, initialDescription, initialStatus]);
+        setAssignedTo(initialAssignedTo);
+        console.log(initialAssignedTo);
+    }, [initialTitle, initialDescription, initialStatus, initialAssignedTo]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await updateProject(projectId, { title, description, status });
+            const updateData = {
+                title,
+                description,
+                status,
+                assigned_to: assignedTo,
+            };
+
+            await updateProject(projectId, updateData);
+
             SuccessAlert("Proyecto actualizado exitosamente");
-            onProjectUpdated({ title, description, status });
+            onProjectUpdated({ ...updateData });
             onClose();
         } catch (error: any) {
             ErrorAlert(error.message || "Error al actualizar el proyecto.");
@@ -92,6 +96,20 @@ const EditProjectModal: FC<EditProjectModalProps> = ({
                         <option value="active">En curso</option>
                         <option value="completed">Completado</option>
                     </select>
+
+                    <select
+                        value={assignedTo || ""}
+                        onChange={(e) => setAssignedTo(e.target.value || null)}
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                    >
+                        <option value="">Seleccione diseñador</option>
+                        {designers.map((designer) => (
+                            <option key={designer.id} value={designer.id}>
+                                {designer.first_name} {designer.last_name}
+                            </option>
+                        ))}
+                    </select>
+
                     <div className="flex justify-between">
                         <button
                             type="button"

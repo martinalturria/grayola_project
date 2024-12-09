@@ -7,7 +7,6 @@ import UserTable from "../_components/UserTable";
 import {
     deleteUser,
     getUsers,
-    getUserById,
     updateUserRole,
 } from "@/services/admin/admin_services";
 import { ErrorAlert, SuccessAlert } from "@/utils/frontend/toastUtils";
