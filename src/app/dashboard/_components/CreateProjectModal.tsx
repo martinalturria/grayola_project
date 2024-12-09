@@ -78,7 +78,7 @@ const CreateProjectModal: FC<CreateProjectModalProps> = ({
                         className="w-full p-2 border border-gray-300 rounded-md"
                     >
                         <option value="pending">Pendiente</option>
-                        <option value="active">Activo</option>
+                        <option value="active">En curso</option>
                         <option value="completed">Completado</option>
                     </select>
                     <div className="flex justify-between">

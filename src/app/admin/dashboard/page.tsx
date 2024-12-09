@@ -17,8 +17,6 @@ export interface User {
     name: string;
     created_at: string;
     role: string;
-    onEdit: (id: string) => void;
-    onDelete: (id: string) => void;
 }
 
 const AdminDashboard: FC = () => {
@@ -48,8 +46,6 @@ const AdminDashboard: FC = () => {
                     name: `${user.first_name} ${user.last_name}`,
                     created_at: `${user.created_at}`,
                     role: user.role_project,
-                    onEdit: (id: string) => handleEditRole(id),
-                    onDelete: (id: string) => handleConfirmDelete(id), // Solo abre el modal para confirmar eliminación
                 }));
                 setUsers(mappedUsers);
             } catch (error) {
@@ -61,19 +57,15 @@ const AdminDashboard: FC = () => {
         fetchUsers();
     }, [router]);
 
-    // Maneja la edición del rol de un usuario
-    const handleEditRole = async (id: string) => {
-        try {
-            const user = await getUserById(id);
+    const handleEditRole = (id: string) => {
+        const user = users.find((user) => user.id === id);
+        if (user) {
             setCurrentUser(user);
-            setNewRole(user.role_project);
-            setIsModalOpen(true); // Abre el modal para editar
-        } catch (error) {
-            console.error("Error al obtener el usuario:", error);
+            setNewRole(user.role);
+            setIsModalOpen(true);
         }
     };
 
-    // Actualiza el rol del usuario
     const handleUpdateRole = async () => {
         if (currentUser && newRole !== currentUser.role) {
             try {
@@ -86,7 +78,7 @@ const AdminDashboard: FC = () => {
                     )
                 );
                 SuccessAlert("Rol actualizado exitosamente.");
-                setIsModalOpen(false); // Cierra el modal
+                setIsModalOpen(false);
             } catch (error) {
                 console.error("Error al actualizar el rol:", error);
             }
@@ -95,32 +87,26 @@ const AdminDashboard: FC = () => {
         }
     };
 
-    // Elimina al usuario
-    const handleDeleteUser = async () => {
-        if (currentUser) {
-            try {
-                const message = await deleteUser(currentUser.id);
-                // Filtra los usuarios eliminados
-                setUsers((prevUsers) =>
-                    prevUsers.filter((user) => user.id !== currentUser.id)
-                );
-                SuccessAlert(message);
-                setIsDeleteModalOpen(false); // Cierra el modal de eliminación
-            } catch (error) {
-                console.error("Error al eliminar el usuario:", error);
-                ErrorAlert("Hubo un error al eliminar el usuario.");
-            }
+    const handleDeleteUser = async (id: string) => {
+        try {
+            const message = await deleteUser(id);
+            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+            SuccessAlert(message);
+            setIsDeleteModalOpen(false); 
+        } catch (error) {
+            console.error("Error al eliminar el usuario:", error);
+            ErrorAlert("Hubo un error al eliminar el usuario.");
         }
     };
 
-    // Abre el modal de confirmación de eliminación
     const handleConfirmDelete = (id: string) => {
         const userToDelete = users.find((user) => user.id === id);
         if (userToDelete) {
-            setCurrentUser(userToDelete); // Guarda al usuario a eliminar
-            setIsDeleteModalOpen(true); // Abre el modal de confirmación
+            setCurrentUser(userToDelete);
+            setIsDeleteModalOpen(true);
         }
     };
+
     return (
         <div className="min-h-screen bg-background text-foreground flex">
             <AdminSidebar onLogout={() => {}} />
@@ -128,16 +114,18 @@ const AdminDashboard: FC = () => {
                 <h1 className="text-3xl font-bold text-primary mb-6">
                     Dashboard
                 </h1>
-                <UserTable users={users} />
-
-                {/* Modal de edición */}
+                <UserTable
+                    users={users}
+                    onEdit={handleEditRole}
+                    onDelete={handleConfirmDelete}
+                />{" "}
                 {isModalOpen && currentUser && (
                     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-2xl mb-4">
+                            <h2 className="text-xl font-semibold text-center mb-6">
                                 Editar Rol de {currentUser.name}
                             </h2>
-                            <div className="mb-4">
+                            <div className="mb-6">
                                 <label
                                     htmlFor="role"
                                     className="block text-sm font-medium text-gray-700"
@@ -148,7 +136,7 @@ const AdminDashboard: FC = () => {
                                     id="role"
                                     value={newRole}
                                     onChange={(e) => setNewRole(e.target.value)}
-                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm py-2 px-3"
                                 >
                                     {roles.map((role) => (
                                         <option key={role} value={role}>
@@ -160,13 +148,13 @@ const AdminDashboard: FC = () => {
                             <div className="flex justify-between">
                                 <button
                                     onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 bg-gray-300 text-black rounded"
+                                    className="px-4 py-2 bg-gray-300 text-black rounded-md"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     onClick={handleUpdateRole}
-                                    className="px-4 py-2 bg-green-500 text-white rounded"
+                                    className="px-4 py-2 bg-green-500 text-white rounded-md"
                                 >
                                     Actualizar Rol
                                 </button>
@@ -174,25 +162,28 @@ const AdminDashboard: FC = () => {
                         </div>
                     </div>
                 )}
-
-                {/* Modal de confirmación de eliminación */}
                 {isDeleteModalOpen && currentUser && (
                     <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
                         <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-2xl font-semibold">
-                                ¿Estás seguro de que deseas eliminar al usuario?
+                            <h2 className="text-xl font-semibold text-center mb-4">
+                                ¿Estás seguro de que deseas eliminar a este
+                                usuario?
                             </h2>
-                            <p>{currentUser.name}</p>
-                            <div className="mt-4">
+                            <p className="text-center font-bold">
+                                {currentUser.name}
+                            </p>
+                            <div className="mt-4 flex justify-between">
                                 <button
-                                    onClick={handleDeleteUser}
+                                    onClick={() =>
+                                        handleDeleteUser(currentUser.id)
+                                    }
                                     className="bg-red-500 text-white px-4 py-2 rounded-md"
                                 >
                                     Eliminar
                                 </button>
                                 <button
                                     onClick={() => setIsDeleteModalOpen(false)}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-md ml-2"
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md"
                                 >
                                     Cancelar
                                 </button>

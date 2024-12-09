@@ -15,7 +15,7 @@ const ProjectFilter: FC<ProjectFilterProps> = ({ filter, onFilterChange }) => {
             >
                 <option value="todos">Todos los proyectos</option>
                 <option value="pending">Pendientes</option>
-                <option value="active">En progreso</option>
+                <option value="active">En curso</option>
                 <option value="completed">Completados</option>
             </select>
         </div>
