@@ -16,8 +16,7 @@ import type { ApiResponse } from "@/types/api/api-response";
  * @returns {Promise<NextResponse<ApiResponse<null>>>} - Response with update status or error.
  */
 export async function PATCH(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<null>>> {
     try {
         const authUser = await validateAuth(req, ["superuser"]);

@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/api/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
@@ -14,8 +17,7 @@ import type { DeleteProjectResponse } from "@/types/api/projects";
  * @returns {Promise<NextResponse<ApiResponse<DeleteProjectResponse | null>>>} - Response with project deletion status or error.
  */
 export async function DELETE(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<DeleteProjectResponse | null>>> {
     try {
         const authUser = await validateAuth(req, ["project_manager"]);

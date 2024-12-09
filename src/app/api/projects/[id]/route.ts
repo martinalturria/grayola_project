@@ -20,8 +20,7 @@ import type { GetProjectByIdResponse } from "@/types/api/projects";
  * @returns {Promise<NextResponse<ApiResponse<GetProjectByIdResponse | null>>>} - Response with project details or error.
  */
 export async function GET(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<GetProjectByIdResponse | null>>> {
     try {
         const authUser = await validateAuth(req, [
