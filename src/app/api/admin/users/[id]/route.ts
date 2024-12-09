@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/api/supabase/supabase";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
 import type { UserByIdResponse } from "@/types/api/admin";
@@ -14,14 +17,13 @@ import type { UserByIdResponse } from "@/types/api/admin";
  * @returns {Promise<NextResponse<ApiResponse<UserByIdResponse | null>>>} - Response with user details or error.
  */
 export async function GET(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<UserByIdResponse | null>>> {
     try {
         const authUser = await validateAuth(req, ["superuser"]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const userId = params.id;
+        const userId = req.nextUrl.pathname.split("/").pop(); // Obtener el ID desde la URL
 
         if (!userId) {
             return errorResponse<UserByIdResponse | null>(
