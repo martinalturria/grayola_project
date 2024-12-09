@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const BASE_URL = "https://grayola-project.vercel.app/api";
 
 export const apiConfig = {
     baseUrl: BASE_URL,
