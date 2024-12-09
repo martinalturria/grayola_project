@@ -4,7 +4,6 @@ import { SuccessAlert, ErrorAlert } from "@/utils/frontend/toastUtils";
 
 export const registerUser = async (dataToSend: RegisterFormData) => {
     try {
-        console.log(dataToSend);
         const data = await makeApiCall(
             "/auth/register",
             "POST",

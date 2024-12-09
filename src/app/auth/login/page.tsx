@@ -8,6 +8,7 @@ import TextInput from "@/components/forms/TextInput";
 import { FaArrowLeft } from "react-icons/fa";
 import { ErrorAlert } from "@/utils/frontend/toastUtils";
 import { loginUser } from "./_actions";
+import { useRouter } from "next/navigation"; 
 
 interface LoginFormData {
     email: string;
@@ -20,6 +21,7 @@ export default function Login() {
         password: "",
     });
     const [loading, setLoading] = useState(false);
+    const router = useRouter(); 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -53,6 +55,7 @@ export default function Login() {
 
         try {
             await loginUser(formData);
+            router.push("/dashboard");
         } catch (error) {
             ErrorAlert("Ocurrió un error al iniciar sesión.");
         } finally {

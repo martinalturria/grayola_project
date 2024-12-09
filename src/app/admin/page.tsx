@@ -1,13 +1,51 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Image from "next/image";
 import Link from "next/link";
 import TextInput from "@/components/forms/TextInput";
 import { FaArrowLeft } from "react-icons/fa";
+import { ErrorAlert } from "@/utils/frontend/toastUtils";
+import { adminLogin } from "@/services/admin/admin_services";
+import { useRouter } from "next/navigation";
 
 const AdminLogin: FC = () => {
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
+    const router = useRouter();
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!email || !password) {
+            ErrorAlert("Por favor completa todos los campos.");
+            return;
+        }
+
+        try {
+            await adminLogin({ email, password });
+            setIsLoggedIn(true);
+        } catch (error: any) {
+            ErrorAlert(error.message || "Ocurrió un error al iniciar sesión.");
+        }
+    };
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            router.push("/admin/dashboard");
+        }
+    }, [isLoggedIn, router]);
+
     return (
         <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
             <div className="bg-white shadow-md rounded-lg flex flex-col md:flex-row w-full max-w-4xl overflow-hidden">
@@ -27,19 +65,15 @@ const AdminLogin: FC = () => {
                         tus proyectos.
                     </p>
 
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={handleSubmit}>
                         <TextInput
                             id="email"
                             name="email"
                             label="Correo Electrónico"
                             type="email"
                             required
-                            value={""}
-                            onChange={function (
-                                e: React.ChangeEvent<HTMLInputElement>
-                            ): void {
-                                throw new Error("Function not implemented.");
-                            }}
+                            value={email}
+                            onChange={handleEmailChange}
                         />
                         <TextInput
                             id="password"
@@ -47,12 +81,8 @@ const AdminLogin: FC = () => {
                             label="Contraseña"
                             type="password"
                             required
-                            value={""}
-                            onChange={function (
-                                e: React.ChangeEvent<HTMLInputElement>
-                            ): void {
-                                throw new Error("Function not implemented.");
-                            }}
+                            value={password}
+                            onChange={handlePasswordChange}
                         />
                         <div className="flex justify-center">
                             <Button type="submit" variant="primary">

@@ -14,9 +14,9 @@ const ProjectFilter: FC<ProjectFilterProps> = ({ filter, onFilterChange }) => {
                 className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary"
             >
                 <option value="todos">Todos los proyectos</option>
-                <option value="activo">Activos</option>
-                <option value="en progreso">En progreso</option>
-                <option value="completado">Completados</option>
+                <option value="pending">Pendientes</option>
+                <option value="active">En progreso</option>
+                <option value="completed">Completados</option>
             </select>
         </div>
     );

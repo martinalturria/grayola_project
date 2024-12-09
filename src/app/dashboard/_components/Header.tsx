@@ -6,9 +6,10 @@ import { FaSignOutAlt } from "react-icons/fa";
 
 interface HeaderProps {
     onLogout: () => void;
+    setSearchQuery: (query: string) => void; 
 }
 
-const Header: FC<HeaderProps> = ({ onLogout }) => {
+const Header: FC<HeaderProps> = ({ onLogout, setSearchQuery }) => {
     return (
         <header className="bg-white shadow-md p-4">
             <div className="flex items-center justify-between">
@@ -23,16 +24,15 @@ const Header: FC<HeaderProps> = ({ onLogout }) => {
                     />
                 </div>
 
-                {/* Barra de búsqueda (desktop y centrada en responsive abajo) */}
                 <div className="hidden sm:flex flex-grow justify-center mx-4">
                     <input
                         type="text"
                         placeholder="Buscar proyecto..."
                         className="w-[40%] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                        onChange={(e) => setSearchQuery(e.target.value)} // Actualiza el estado
                     />
                 </div>
 
-                {/* Cerrar sesión */}
                 <div className="flex items-center">
                     <span
                         onClick={onLogout}
@@ -43,12 +43,12 @@ const Header: FC<HeaderProps> = ({ onLogout }) => {
                 </div>
             </div>
 
-            {/* Barra de búsqueda (responsive) */}
             <div className="flex sm:hidden mt-4 justify-center">
                 <input
                     type="text"
                     placeholder="Buscar proyecto..."
                     className="w-[80%] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    onChange={(e) => setSearchQuery(e.target.value)} // Actualiza el estado
                 />
             </div>
         </header>

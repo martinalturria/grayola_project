@@ -8,6 +8,8 @@ import TextInput from "@/components/forms/TextInput";
 import { FaArrowLeft } from "react-icons/fa";
 import { ErrorAlert } from "@/utils/frontend/toastUtils";
 import { registerUser } from "./_actions";
+import { useRouter } from "next/navigation";
+import { loginUser } from "../login/_actions";
 
 interface RegisterFormData {
     nombre: string;
@@ -26,6 +28,7 @@ export default function Register() {
         confirmarContraseña: "",
     });
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -72,6 +75,13 @@ export default function Register() {
 
         try {
             await registerUser(dataToSend);
+
+            await loginUser({
+                email: formData.email,
+                password: formData.password,
+            });
+
+            router.push("/dashboard");
         } catch (error) {
             ErrorAlert("Ocurrió un error al registrar la cuenta.");
         } finally {
@@ -165,7 +175,7 @@ export default function Register() {
                         alt="Formulario de Registro"
                         width={600}
                         height={600}
-                        className="object-cover"
+                        className="object-contain"
                     />
                 </div>
             </div>

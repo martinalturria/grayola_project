@@ -7,7 +7,10 @@ export const apiConfig = {
     },
 };
 
-const getAuthToken = () => {
+const getAuthToken = (isAdmin: boolean = false) => {
+    if (isAdmin) {
+        return localStorage.getItem("TOKEN_ADMIN");
+    }
     return localStorage.getItem("auth_token");
 };
 
@@ -15,12 +18,13 @@ export const makeApiCall = async (
     url: string,
     method: string,
     body: any,
-    requiresAuth: boolean = false
+    requiresAuth: boolean = false,
+    isAdmin: boolean = false 
 ) => {
     let headers: HeadersInit = { ...apiConfig.headers };
 
     if (requiresAuth) {
-        const token = getAuthToken();
+        const token = getAuthToken(isAdmin);
         if (token) {
             headers = {
                 ...headers,
@@ -31,12 +35,16 @@ export const makeApiCall = async (
         }
     }
 
-    const response = await fetch(`${apiConfig.baseUrl}${url}`, {
+    const options: RequestInit = {
         method,
         headers,
-        body: JSON.stringify(body),
-    });
+    };
 
+    if (method !== "GET" && body) {
+        options.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(`${apiConfig.baseUrl}${url}`, options);
     const data = await response.json();
 
     if (!response.ok) {

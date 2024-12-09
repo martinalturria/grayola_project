@@ -1,14 +1,14 @@
 import { FC } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { User } from "../dashboard/page";
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    onEdit: (id: number) => void;
-    onDelete: (id: number) => void;
-}
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
 
 const UserTable: FC<{ users: User[] }> = ({ users }) => {
     return (
@@ -20,7 +20,7 @@ const UserTable: FC<{ users: User[] }> = ({ users }) => {
                             Nombre
                         </th>
                         <th className="px-4 py-3 border-b text-sm font-semibold">
-                            Correo Electrónico
+                            Fecha de Creación
                         </th>
                         <th className="px-4 py-3 border-b text-sm font-semibold">
                             Rol
@@ -34,7 +34,9 @@ const UserTable: FC<{ users: User[] }> = ({ users }) => {
                     {users.map((user) => (
                         <tr key={user.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3 border-b">{user.name}</td>
-                            <td className="px-4 py-3 border-b">{user.email}</td>
+                            <td className="px-4 py-3 border-b">
+                                {user.created_at ? formatDate(user.created_at) : 'N/A'}
+                            </td>
                             <td className="px-4 py-3 border-b">{user.role}</td>
                             <td className="px-4 py-3 border-b flex justify-end gap-3">
                                 <button
