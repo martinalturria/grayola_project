@@ -1,5 +1,8 @@
 import { supabase } from "@/lib/api/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
@@ -17,14 +20,13 @@ import type {
  * @returns {Promise<NextResponse<ApiResponse<UpdateProjectResponse | null>>>} - Response with updated project details or error.
  */
 export async function PUT(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<UpdateProjectResponse | null>>> {
     try {
         const authUser = await validateAuth(req, ["project_manager"]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const projectId = params.id;
+        const projectId = req.nextUrl.pathname.split("/").pop();
 
         if (!projectId) {
             return errorResponse<UpdateProjectResponse | null>(

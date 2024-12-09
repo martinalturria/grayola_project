@@ -29,7 +29,7 @@ const Header: FC<HeaderProps> = ({ onLogout, setSearchQuery }) => {
                         type="text"
                         placeholder="Buscar proyecto..."
                         className="w-[40%] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                        onChange={(e) => setSearchQuery(e.target.value)} // Actualiza el estado
+                        onChange={(e) => setSearchQuery(e.target.value)} 
                     />
                 </div>
 
@@ -48,7 +48,7 @@ const Header: FC<HeaderProps> = ({ onLogout, setSearchQuery }) => {
                     type="text"
                     placeholder="Buscar proyecto..."
                     className="w-[80%] px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    onChange={(e) => setSearchQuery(e.target.value)} // Actualiza el estado
+                    onChange={(e) => setSearchQuery(e.target.value)} 
                 />
             </div>
         </header>

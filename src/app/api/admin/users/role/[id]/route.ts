@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/api/supabase/supabase";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
 
@@ -20,7 +23,7 @@ export async function PATCH(
         const authUser = await validateAuth(req, ["superuser"]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const userId = params.id;
+        const userId = req.nextUrl.pathname.split("/").pop();
 
         if (!userId) {
             return errorResponse<null>(

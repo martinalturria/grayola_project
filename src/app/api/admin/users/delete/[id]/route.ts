@@ -1,6 +1,9 @@
 import { supabaseAdmin } from "@/lib/api/supabase/supabase-admin";
 import { supabase } from "@/lib/api/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import {
+    successResponse,
+    errorResponse,
+} from "@/lib/api/middlewares/api-response";
 import { validateAuth } from "@/lib/api/middlewares/validate-auth";
 import { NextRequest, NextResponse } from "next/server";
 import type { ApiResponse } from "@/types/api/api-response";
@@ -15,14 +18,13 @@ import { DeleteUserResponse } from "@/types/api/admin";
  * @returns {Promise<NextResponse<ApiResponse<DeleteUserResponse | null>>>} - Response with deletion status or error.
  */
 export async function DELETE(
-    req: NextRequest,
-    { params }: { params: { id: string } }
+    req: NextRequest
 ): Promise<NextResponse<ApiResponse<DeleteUserResponse | null>>> {
     try {
         const authUser = await validateAuth(req, ["superuser"]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const userId = params.id;
+        const userId = req.nextUrl.pathname.split("/").pop();
 
         if (!userId) {
             return errorResponse<DeleteUserResponse | null>(

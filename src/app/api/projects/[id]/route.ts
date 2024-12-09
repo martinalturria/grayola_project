@@ -31,7 +31,7 @@ export async function GET(
         ]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const projectId = params.id;
+        const projectId = req.nextUrl.pathname.split("/").pop();
 
         if (!projectId) {
             return errorResponse<GetProjectByIdResponse | null>(

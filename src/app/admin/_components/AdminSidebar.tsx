@@ -1,7 +1,10 @@
+"use client";
+
 import { FC, useState } from "react";
 import { FaUsers, FaSignOutAlt, FaBars } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface AdminSidebarProps {
     onLogout: () => void;
@@ -9,9 +12,15 @@ interface AdminSidebarProps {
 
 const AdminSidebar: FC<AdminSidebarProps> = ({ onLogout }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const router = useRouter();
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem("TOKEN_ADMIN");
+        router.push("/");
     };
 
     return (
@@ -53,7 +62,7 @@ const AdminSidebar: FC<AdminSidebarProps> = ({ onLogout }) => {
             </nav>
 
             <button
-                onClick={onLogout}
+                onClick={handleLogout}
                 className="flex items-center gap-2 text-sm hover:underline text-white mt-auto"
             >
                 <FaSignOutAlt />
