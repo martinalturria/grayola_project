@@ -23,7 +23,7 @@ export async function GET(
         const authUser = await validateAuth(req, ["superuser"]);
         if (authUser instanceof NextResponse) return authUser;
 
-        const userId = req.nextUrl.pathname.split("/").pop(); // Obtener el ID desde la URL
+        const userId = req.nextUrl.pathname.split("/").pop();
 
         if (!userId) {
             return errorResponse<UserByIdResponse | null>(
