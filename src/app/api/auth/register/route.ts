@@ -1,9 +1,9 @@
-import { supabase } from "@/lib/supabase/supabase";
-import { supabaseAdmin } from "@/lib/supabase/supabase-admin";
-import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
-import type { RegisterRequest, RegisterResponse } from "@/types/auth";
+import { supabase } from "@/lib/api/supabase/supabase";
+import { supabaseAdmin } from "@/lib/api/supabase/supabase-admin";
+import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
+import type { RegisterRequest, RegisterResponse } from "@/types/api/auth";
 import type { NextResponse } from "next/server";
-import { validateEmailAndPassword } from "@/utils/data_validation";
+import { validateEmailAndPassword } from "@/utils/api/data_validation";
 
 /**
  * POST /api/auth/register
@@ -33,7 +33,7 @@ export async function POST(
 
         if (signUpError || !userData.user) {
             return errorResponse<RegisterResponse["data"]>(
-                signUpError?.message || "Failed to register user",
+                signUpError?.message || "Error al registrar el usuario",
                 500
             );
         }
@@ -50,7 +50,7 @@ export async function POST(
         if (profileError) {
             await supabaseAdmin.auth.admin.deleteUser(userId);
             return errorResponse<RegisterResponse["data"]>(
-                "Failed to create user profile",
+                "Error al crear el perfil de usuario",
                 500
             );
         }
@@ -61,11 +61,11 @@ export async function POST(
                 email: userData.user.email || "",
                 role: "client",
             },
-            "User registered successfully"
+            "Usuario registrado exitosamente"
         );
     } catch (err: any) {
         return errorResponse<RegisterResponse["data"]>(
-            err.message || "An unexpected error occurred",
+            err.message || "Ocurrió un error inesperado",
             500
         );
     }

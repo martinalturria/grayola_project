@@ -1,8 +1,8 @@
-import { supabase } from "@/lib/supabase/supabase";
-import { successResponse, errorResponse } from "@/lib/middlewares/api-response";
+import { supabase } from "@/lib/api/supabase/supabase";
+import { successResponse, errorResponse } from "@/lib/api/middlewares/api-response";
 import type { NextResponse } from "next/server";
-import { validateEmailAndPassword } from "@/utils/data_validation";
-import { AdminLoginRequest, AdminLoginResponse } from "@/types/admin";
+import { validateEmailAndPassword } from "@/utils/api/data_validation";
+import { AdminLoginRequest, AdminLoginResponse } from "@/types/api/admin";
 
 /**
  * POST /api/admin/login

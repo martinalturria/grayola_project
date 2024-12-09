@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { ApiResponse } from "@/types/api-response";
+import type { ApiResponse } from "@/types/api/api-response";
 
 /**
  * Middleware to generate consistent API responses.
